@@ -33,8 +33,8 @@ var argv = minimist(process.argv.slice(2), {
 
 var options =
 {
-  key:  fs.readFileSync('keys/server.key'),
-  cert: fs.readFileSync('keys/server.crt')
+  key:  fs.readFileSync('keys/privkey.pem'),
+  cert: fs.readFileSync('keys/fullchain.pem')
 };
 
 var app = express();
@@ -110,7 +110,7 @@ wss.on('connection', function(ws) {
 			break;
 
         case 'viewer':
-			startViewer(sessionId, ws, message.sdpOffer, function(error, sdpAnswer) {
+			startViewer(sessionId, ws, message.sdpOffer, function(error, sdpAnswer,candidate) {
 				if (error) {
 					return ws.send(JSON.stringify({
 						id : 'viewerResponse',
@@ -118,6 +118,9 @@ wss.on('connection', function(ws) {
 						message : error
 					}));
 				}
+
+
+console.log("shahrammmmmmmmmmmm:  " + candidate);
 
 				ws.send(JSON.stringify({
 					id : 'viewerResponse',
@@ -287,12 +290,13 @@ function startViewer(sessionId, ws, sdpOffer, callback) {
 			}
 		}
 
+		var candidate;
         webRtcEndpoint.on('OnIceCandidate', function(event) {
-            var candidate = kurento.getComplexType('IceCandidate')(event.candidate);
-            ws.send(JSON.stringify({
+             candidate = kurento.getComplexType('IceCandidate')(event.candidate);
+           /* ws.send(JSON.stringify({
                 id : 'iceCandidate',
                 candidate : candidate
-            }));
+            }));*/
         });
 
 		webRtcEndpoint.processOffer(sdpOffer, function(error, sdpAnswer) {
@@ -315,7 +319,7 @@ function startViewer(sessionId, ws, sdpOffer, callback) {
 					return callback(noPresenterMessage);
 				}
 
-				callback(null, sdpAnswer);
+				callback(null, sdpAnswer,candidate);
 		        webRtcEndpoint.gatherCandidates(function(error) {
 		            if (error) {
 			            stop(sessionId);
