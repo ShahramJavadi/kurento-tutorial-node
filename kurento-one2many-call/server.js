@@ -110,7 +110,7 @@ wss.on('connection', function(ws) {
 			break;
 
         case 'viewer':
-			startViewer(sessionId, ws, message.sdpOffer, function(error, sdpAnswer,candidate) {
+			startViewer(sessionId, ws, message.sdpOffer, function(error, sdpAnswer) {
 				if (error) {
 					return ws.send(JSON.stringify({
 						id : 'viewerResponse',
@@ -120,13 +120,9 @@ wss.on('connection', function(ws) {
 				}
 
 
-console.log("shahrammmmmmmmmmmm:  " + candidate.toString);
 
 
- ws.send(JSON.stringify({
-                id : 'iceCandidate',
-                candidate : candidate
-            }));
+
 
 				ws.send(JSON.stringify({
 					id : 'viewerResponse',
@@ -296,13 +292,14 @@ function startViewer(sessionId, ws, sdpOffer, callback) {
 			}
 		}
 
-		var candidate;
+	
         webRtcEndpoint.on('OnIceCandidate', function(event) {
-             candidate = kurento.getComplexType('IceCandidate')(event.candidate);
-           /* ws.send(JSON.stringify({
+			console.log("YUUUUUUUUUUUUUUUUUUUUUKAAAAAAAAA")
+          var   candidate = kurento.getComplexType('IceCandidate')(event.candidate);
+           ws.send(JSON.stringify({
                 id : 'iceCandidate',
                 candidate : candidate
-            }));*/
+            }));
         });
 
 		webRtcEndpoint.processOffer(sdpOffer, function(error, sdpAnswer) {
@@ -325,7 +322,7 @@ function startViewer(sessionId, ws, sdpOffer, callback) {
 					return callback(noPresenterMessage);
 				}
 
-				callback(null, sdpAnswer,candidate);
+				callback(null, sdpAnswer);
 		        webRtcEndpoint.gatherCandidates(function(error) {
 		            if (error) {
 			            stop(sessionId);
