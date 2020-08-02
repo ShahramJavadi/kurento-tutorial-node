@@ -120,7 +120,13 @@ wss.on('connection', function(ws) {
 				}
 
 
-console.log("shahrammmmmmmmmmmm:  " + candidate);
+console.log("shahrammmmmmmmmmmm:  " + candidate.toString);
+
+
+ ws.send(JSON.stringify({
+                id : 'iceCandidate',
+                candidate : candidate
+            }));
 
 				ws.send(JSON.stringify({
 					id : 'viewerResponse',
